@@ -34,6 +34,9 @@
 enclave {
     include "sgx_report.h"
 
+    from "sgx_extraocall.edl" import *;
+    from "sgx_tprotected_fs.edl" import *;
+
     trusted {
         /* define ECALLs here. */
         public uint32_t enclave_create_report([in]const sgx_target_info_t* p_qe3_target,
