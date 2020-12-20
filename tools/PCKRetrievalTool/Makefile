@@ -94,6 +94,12 @@ CXXFLAGS += -std=c++11
 
 ######## App Settings ########
 
+ifneq ($(SGX_MODE), HW)
+	Urts_Library_Name := sgx_urts_sim
+else
+	Urts_Library_Name := sgx_urts
+endif
+
 App_Cpp_Files := $(wildcard App/linux/*.cpp App/*.cpp)
 App_Include_Paths := -I$(SGX_SDK)/include -I./App -I ./App/inc
 App_Include_Paths += -I ../../QuoteGeneration/common/inc/internal -I ../../QuoteGeneration/quote_wrapper/ql/inc 
@@ -104,7 +110,7 @@ App_C_Flags := $(COMMON_FLAGS) -fPIC -Wno-attributes $(App_Include_Paths)
 
 App_Cpp_Flags := $(App_C_Flags) -std=c++11
 App_Link_Flags := $(SGX_COMMON_CFLAGS) -Wl,-z,relro,-z,now,-z,noexecstack
-App_Link_Flags +=  -lcurl -ldl -lpthread -Wl,-rpath=.
+App_Link_Flags += -L$(SGX_LIBRARY_PATH) -l$(Urts_Library_Name) -lcurl -ldl -lpthread -Wl,-rpath=.
 
 
 App_Cpp_Objects := $(App_Cpp_Files:.cpp=.o)
@@ -137,7 +143,7 @@ Enclave_Cpp_Flags := $(Enclave_C_Flags) -std=c++11 -nostdinc++
 # Otherwise, you may get some undesirable errors.
 Enclave_Link_Flags := $(SGX_COMMON_CFLAGS) -Wl,--no-undefined -nostdlib -nodefaultlibs -nostartfiles -L$(SGX_LIBRARY_PATH) \
         -Wl,--whole-archive -l$(Trts_Library_Name) -Wl,--no-whole-archive \
-        -Wl,--start-group -lsgx_tstdc -l$(Crypto_Library_Name) -l$(Service_Library_Name) -Wl,--end-group \
+        -Wl,--start-group -lsgx_tstdc -lsgx_printf_dbg -l$(Crypto_Library_Name) -l$(Service_Library_Name) -Wl,--end-group \
         -Wl,-Bstatic -Wl,-Bsymbolic -Wl,--no-undefined \
         -Wl,-pie,-eenclave_entry -Wl,--export-dynamic  \
         -Wl,--defsym,__ImageBase=0 -Wl,--gc-sections   \
@@ -186,7 +192,7 @@ endif
 ######## App Objects ########
 
 App/Enclave_u.c:
-	cd App && $(SGX_EDGER8R) --untrusted ../Enclave/Enclave.edl
+	cd App && $(SGX_EDGER8R) --untrusted ../Enclave/Enclave.edl --search-path $(SGX_SDK)/include
 	@echo "GEN  =>  $@"
 
 App/Enclave_u.o: App/Enclave_u.c
@@ -207,7 +213,7 @@ $(App_Name): App/Enclave_u.o $(App_Cpp_Objects)
 ######## Enclave Objects ########
 
 Enclave/Enclave_t.c:
-	@cd Enclave && $(SGX_EDGER8R) --trusted ../Enclave/Enclave.edl
+	@cd Enclave && $(SGX_EDGER8R) --trusted ../Enclave/Enclave.edl --search-path $(SGX_SDK)/include
 	@echo "GEN  =>  $@"
 
 Enclave/Enclave_t.o: Enclave/Enclave_t.c

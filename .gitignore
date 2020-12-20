@@ -23,3 +23,10 @@
 /QuoteGeneration/build/
 **/Debug/
 **/Release/
+
+# part of compiling output
+*.ddeb
+QuoteGeneration/Intel redistributable binary.txt
+QuoteGeneration/psw/
+QuoteVerification/sgxssl/
+tools/PCKCertSelection/out/
