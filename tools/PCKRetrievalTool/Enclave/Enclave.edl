@@ -35,7 +35,7 @@ enclave {
     include "sgx_report.h"
 
     from "sgx_printf_dbg.edl" import *; // for printf_dbg usage
-
+    from "sgx_tstdc.edl" import sgx_thread_wait_untrusted_event_ocall, sgx_thread_set_untrusted_event_ocall; // for in-enclave mutex
     trusted {
         /* define ECALLs here. */
         public uint32_t enclave_create_report([in]const sgx_target_info_t* p_qe3_target,
