@@ -78,7 +78,8 @@ struct _sgx_ql_qve_collateral_t
     from "sgx_tstdc.edl" import *;
 
     from "sgx_printf_dbg.edl" import *; // for printf_dbg usage
-    
+    from "sgx_tprotected_fs.edl" import *; // for check point log file mode
+
     /* Import ECALL/OCALL from sub-directory EDLs.
      *  [from]: specifies the location of EDL file.
      *  [import]: specifies the functions to import,
